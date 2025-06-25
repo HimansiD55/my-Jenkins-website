@@ -1,0 +1,58 @@
+// Jenkinsfile - Declarative Pipeline for My Simple Website
+pipeline {
+    // 'agent' defines where the pipeline will run. 'any' means Jenkins can run it on any available agent (including the master).
+    agent any 
+
+    // 'stages' is a block that contains one or more 'stage' definitions. Each stage represents a distinct part of your CI/CD process.
+    stages {
+        // Stage 1: Checkout - Responsible for getting the source code.
+        stage('Checkout Source Code') {
+            steps {
+                // 'git' step checks out the specified Git repository.
+                // Since this Jenkinsfile is already in SCM, Jenkins automatically clones the repository where the Jenkinsfile resides.
+                // For this simple case, we don't need an explicit 'git' step here as the Pipeline job type handles initial cloning.
+                // However, for clarity and if you had multiple repos, you might use 'checkout scm'.
+                // For now, let's keep it simple and just acknowledge we are in the workspace.
+                echo "Checking out source code from Git..."
+            }
+        }
+
+        // Stage 2: Build - Responsible for performing the build steps.
+        stage('Build My Website') {
+            steps {
+                // 'sh' step executes a shell command (Linux/macOS) or batch command (Windows).
+                echo "Building my simple website..."
+                sh 'ls -la' // List files to confirm 'index.html' is present
+                echo "Build complete."
+            }
+        }
+
+        // Stage 3: Archive Artifacts - Responsible for saving important output files.
+        stage('Archive Output') {
+            steps {
+                // 'archiveArtifacts' step saves files from the workspace as artifacts for the build.
+                archiveArtifacts artifacts: 'index.html', fingerprint: true
+                // 'fingerprint: true' creates a unique ID for the artifact, useful for tracking later.
+            }
+        }
+    }
+
+    // 'post' section defines actions that run after the main pipeline stages complete.
+    // These can run based on the overall build status (success, failure, always, etc.).
+    post {
+        // 'always' block runs regardless of whether the pipeline succeeded or failed.
+        always {
+            echo 'Pipeline execution finished.'
+        }
+        // 'success' block runs only if the pipeline completed all stages successfully.
+        success {
+            echo 'Pipeline completed successfully!'
+            // You could add an email notification here, e.g., mail to: 'your-email@example.com', subject: "Jenkins Build SUCCESS"
+        }
+        // 'failure' block runs only if any stage in the pipeline failed.
+        failure {
+            echo 'Pipeline failed! Check the console output for details.'
+            // You could add an email notification here, e.g., mail to: 'your-email@example.com', subject: "Jenkins Build FAILED"
+        }
+    }
+}
